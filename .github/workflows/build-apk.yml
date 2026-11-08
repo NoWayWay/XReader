@@ -29,10 +29,19 @@ jobs:
       - name: Extract project
         run: unzip -o ReaderApp-source.zip
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
+      - name: Install Gradle 8.9
+        run: |
+          set -e
+          curl -fL \
+            --retry 5 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            https://downloads.gradle.org/distributions/gradle-8.9-bin.zip \
+            -o /tmp/gradle.zip
+          sudo unzip -q /tmp/gradle.zip -d /opt
+          echo "/opt/gradle-8.9/bin" >> "$GITHUB_PATH"
+          /opt/gradle-8.9/bin/gradle --version
+
 
       - name: Build APK
         run: |
