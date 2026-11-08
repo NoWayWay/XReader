@@ -1,3 +1,4 @@
+
 name: Build Android APK
 
 on:
@@ -16,28 +17,30 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: 'gradle'          # кэш Gradle через setup-java
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+          packages: 'platform-tools'
+
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Extract project
+        run: unzip -o ReaderApp-source.zip
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        # gradle-version не указываем — используем wrapper проекта
-
-      - name: Make gradlew executable
-        run: chmod +x ReaderApp/gradlew   # или ./gradlew, если проект в корне
+        with:
+          gradle-version: '8.9'
 
       - name: Build APK
         run: |
           cd ReaderApp
-          ./gradlew --no-daemon assembleDebug
+          gradle --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: readerapp-debug-apk
           path: ReaderApp/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
